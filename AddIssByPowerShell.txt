@@ -1,0 +1,13 @@
+
+  Install-WindowsFeature -Name "Web-Default-Doc"
+  Install-WindowsFeature -Name "Web-Dir-Browsing"
+  Install-WindowsFeature -Name "Web-Http-Errors"
+  Install-WindowsFeature -Name "Web-Static-Content"
+  Install-WindowsFeature -Name "Web-Filtering"
+  Install-WindowsFeature -Name "Web-Http-Logging"
+  Install-WindowsFeature -Name "Web-Stat-Compression"
+  Install-WindowsFeature -Name "Web-Mgmt-Console"
+  
+  Default page : 
+    С:\inetpub\ create TestSite folder. Add index.html  with content: 
+    <Н1>Тестовый сайт</Н1>
