@@ -1,0 +1,56 @@
+Шаг 5 — Создание служебного файла systemd
+Мы должны иметь возможность запустить Tomcat в качестве службы, поэтому мы настроим служебный файл systemd.
+
+Tomcat должен знать, где установлена Java. Обычно этот путь называют JAVA_HOME. Самым простым способом поиска расположения является использование этой команды:
+
+sudo update-java-alternatives -l
+Output
+java-1.11.0-openjdk-amd64       1081       /usr/lib/jvm/java-1.11.0-openjdk-amd64
+Ваш путь JAVA_HOME — это вывод из последнего столбца (выделено красным). Учитывая приведенный выше пример, для этого сервера правильное значение JAVA_HOME будет выглядеть таким образом:
+
+JAVA_HOME
+/usr/lib/jvm/java-1.11.0-openjdk-amd64
+Ваш путь JAVA_HOME может отличаться.
+
+Получив эту информацию, мы сможем создать служебный файл systemd. Откройте файл tomcat.service в директории /etc/systemd/system с помощью следующей команды:
+
+sudo nano /etc/systemd/system/tomcat.service
+Добавьте следующее содержимое в служебный файл. Измените значение JAVA_HOME, если потребуется, согласно значению, которое вы используете в вашей системе. Также вы можете изменить параметры распределения памяти, указанные в CATALINA_OPTS:
+
+/etc/systemd/system/tomcat.service
+[Unit]
+Description=Apache Tomcat Web Application Container
+After=network.target
+
+[Service]
+Type=forking
+
+Environment=JAVA_HOME=/usr/lib/jvm/java-1.11.0-openjdk-amd64
+Environment=CATALINA_PID=/opt/tomcat/temp/tomcat.pid
+Environment=CATALINA_HOME=/opt/tomcat
+Environment=CATALINA_BASE=/opt/tomcat
+Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC'
+Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom'
+
+ExecStart=/opt/tomcat/bin/startup.sh
+ExecStop=/opt/tomcat/bin/shutdown.sh
+
+User=tomcat
+Group=tomcat
+UMask=0007
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+После завершения редактирования сохраните и закройте файл.
+
+Далее перезагрузите демон systemd, чтобы он знал о существовании вашего служебного файла:
+
+sudo systemctl daemon-reload
+Запустите службу Tomcat с помощью следующей команды:
+
+sudo systemctl start tomcat
+Дополнительно проверьте, что служба запущена без ошибок, выполнив следующую команду:
+
+sudo systemctl status tomcat
